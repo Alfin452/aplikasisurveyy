@@ -59,7 +59,7 @@
 
     <!-- Konten -->
     <div class="flex-1 ml-64 p-8">
-        <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="bg-white rounded-xl shadow-md p-2">
             @yield('content')
         </div>
     </div>

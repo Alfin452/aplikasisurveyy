@@ -48,13 +48,14 @@
                         @endif
                     </td>
                     <td class="py-3 px-6">
-                        @foreach($survey->unitKerja as $unit)
-                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">{{ $unit->uk_short_name }}</span>
-                        @endforeach
+                        <ul class="list-disc list-inside">
+                            @foreach($survey->unitKerja as $unit)
+                            <li>{{ $unit->unit_kerja_name }}</li>
+                            @endforeach
+                        </ul>
                     </td>
                     <td class="py-3 px-6">
                         <div class="flex flex-col space-y-2 w-full">
-                            <!-- Tombol Edit -->
                             <a href="{{ route('surveys.edit', $survey->id) }}"
                                 class="inline-flex items-center gap-2 bg-blue-500 text-white px-3 py-1 rounded-lg text-sm font-medium hover:bg-blue-600 transition duration-300 shadow-md transform hover:scale-105 w-max">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -63,7 +64,6 @@
                                 Edit
                             </a>
 
-                            <!-- Tombol Kelola Pertanyaan -->
                             <a href="{{ route('surveys.questions.index', $survey->id) }}"
                                 class="inline-flex items-center gap-2 bg-purple-500 text-white px-3 py-1 rounded-lg text-sm font-medium hover:bg-purple-600 transition duration-300 shadow-md transform hover:scale-105 w-max">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -72,7 +72,6 @@
                                 Kelola Pertanyaan
                             </a>
 
-                            <!-- Tombol Hapus -->
                             <form action="{{ route('surveys.destroy', $survey->id) }}" method="POST"
                                 onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
                                 @csrf
@@ -90,7 +89,6 @@
                 </tr>
                 @endforeach
             </tbody>
-
         </table>
     </div>
 </div>

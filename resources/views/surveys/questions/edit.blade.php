@@ -21,10 +21,6 @@
                             <input type="radio" name="type" value="multiple_choice" class="form-radio text-indigo-600" {{ $question->type === 'multiple_choice' ? 'checked' : '' }}>
                             <span class="ml-2 text-gray-700">Pilihan Ganda</span>
                         </label>
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="type" value="text_answer" class="form-radio text-indigo-600" {{ $question->type === 'text_answer' ? 'checked' : '' }}>
-                            <span class="ml-2 text-gray-700">Jawaban Teks</span>
-                        </label>
                     </div>
                 </div>
 

@@ -30,13 +30,23 @@
 
             <div class="md:col-span-2">
                 <label for="unit_kerja" class="block text-sm font-semibold text-gray-700 mb-1">Unit Kerja:</label>
-                <select id="unit_kerja" name="unit_kerja[]" multiple class="w-full rounded-lg border-gray-300 shadow-sm transition duration-300 ease-in-out focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
-                    @foreach($unitKerja as $unit)
-                    <option value="{{ $unit->id }}" {{ in_array($unit->id, $survey->unitKerja->pluck('id')->toArray()) ? 'selected' : '' }}>
-                        {{ $unit->unit_kerja_name }}
-                    </option>
-                    @endforeach
-                </select>
+                <div id="unit-kerja-dropdown" class="dropdown w-full">
+                    <button class="btn btn-outline-secondary dropdown-toggle w-full text-left rounded-lg border-gray-300 shadow-sm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span id="selected-units-label">Pilih satu atau lebih unit kerja</span>
+                    </button>
+                    <div class="dropdown-menu p-2" aria-labelledby="unit-kerja-dropdown">
+                        @foreach($unitKerja as $unit)
+                        <div class="form-check">
+                            <input class="form-check-input unit-checkbox" type="checkbox" name="unit_kerja[]" value="{{ $unit->id }}" id="unit-{{ $unit->id }}"
+                                {{ $survey->unitKerja->contains($unit->id) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="unit-{{ $unit->id }}">
+                                {{ $unit->unit_kerja_name }}
+                            </label>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                <input type="hidden" name="unit_kerja_validate" id="hidden_unit_kerja_input" required>
             </div>
         </div>
 
@@ -48,7 +58,60 @@
                 Kembali
             </a>
         </div>
-        
     </form>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectedLabel = document.getElementById('selected-units-label');
+        const checkboxes = document.querySelectorAll('.unit-checkbox');
+        const dropdownMenu = document.querySelector('.dropdown-menu');
+        const hiddenInput = document.getElementById('hidden_unit_kerja_input');
+
+        let selectedUnits = {};
+
+        checkboxes.forEach(function(checkbox) {
+            // Logika untuk menandai unit kerja yang sudah dipilih saat halaman dimuat
+            if (checkbox.checked) {
+                selectedUnits[checkbox.value] = checkbox.nextElementSibling.textContent.trim();
+            }
+
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    selectedUnits[this.value] = this.nextElementSibling.textContent.trim();
+                } else {
+                    delete selectedUnits[this.value];
+                }
+                updateSelectedUnitsLabel();
+            });
+        });
+
+        function updateSelectedUnitsLabel() {
+            const unitNames = Object.values(selectedUnits);
+            selectedLabel.textContent = '';
+            if (unitNames.length === 0) {
+                selectedLabel.textContent = 'Pilih satu atau lebih unit kerja';
+                hiddenInput.removeAttribute('name');
+            } else {
+                hiddenInput.setAttribute('name', 'unit_kerja_validate');
+                hiddenInput.value = unitNames.join(',');
+                unitNames.forEach(function(name) {
+                    const tag = document.createElement('span');
+                    tag.className = 'badge bg-indigo-600 text-white mr-1';
+                    tag.textContent = name;
+                    selectedLabel.appendChild(tag);
+                });
+            }
+        }
+
+        dropdownMenu.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+
+        // Panggil fungsi ini sekali saat halaman dimuat untuk menampilkan pilihan awal
+        updateSelectedUnitsLabel();
+    });
+</script>
 @endsection
