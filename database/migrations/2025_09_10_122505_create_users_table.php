@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('password')->nullable();
             $table->string('google_id')->nullable();
             $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
-            $table->foreignId('unit_kerja_id')->nullable()->constrained('unit_kerja')->onDelete('cascade');
+            $table->foreignId('unit_kerja_id')->nullable()->constrained('unit_kerjas')->onDelete('cascade');
             $table->boolean('email_verified')->default(false);
             $table->boolean('is_active')->default(true);
             $table->timestamps();

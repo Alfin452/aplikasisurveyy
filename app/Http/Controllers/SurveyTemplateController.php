@@ -8,23 +8,14 @@ use Illuminate\Support\Facades\DB;
 
 class SurveyTemplateController extends Controller
 {
-    /**
-     * Tampilkan daftar survei yang berfungsi sebagai template.
-     */
     public function index()
     {
-        $templates = Survey::where('is_template', true)->get();
-        $surveysToCopy = Survey::where('is_template', false)->with('questions')->get();
+        // Dioptimasi: Menggunakan pluck untuk dropdown lebih efisien
+        $templates = Survey::where('is_template', true)->latest()->get();
+        $surveysToCopy = Survey::where('is_template', false)->pluck('title', 'id');
 
-        return view('templates.index', compact('templates', 'surveysToCopy')); // Perubahan ada di sini
+        return view('templates.index', compact('templates', 'surveysToCopy'));
     }
-
-    /**
-     * Simpan survei yang ada sebagai template.
-     */
-    // app/Http/Controllers/SurveyTemplateController.php
-
-    // ...
 
     public function store(Request $request)
     {
@@ -34,46 +25,71 @@ class SurveyTemplateController extends Controller
 
         $originalSurvey = Survey::findOrFail($validated['survey_id']);
 
-        // Duplikasi survei yang asli
-        $newTemplate = $originalSurvey->replicate();
-        $newTemplate->title = $originalSurvey->title . ' (Template)';
-        $newTemplate->is_template = true; // Tandai salinan sebagai template
-        $newTemplate->save();
+        // Dibungkus dalam Transaction
+        $newTemplate = DB::transaction(function () use ($originalSurvey) {
+            return $this->duplicateSurvey($originalSurvey, true);
+        });
 
-        // Sekarang, duplikasi juga semua pertanyaan dan opsi jawabannya
-        foreach ($originalSurvey->questions as $question) {
-            $newQuestion = $question->replicate();
-            $newQuestion->survey_id = $newTemplate->id;
-            $newQuestion->save();
-
-            foreach ($question->options as $option) {
-                $newOption = $option->replicate();
-                $newOption->question_id = $newQuestion->id;
-                $newOption->save();
-            }
+        if (!$newTemplate) {
+            return back()->with('error', 'Gagal membuat template.');
         }
 
         return redirect()->route('templates.index')->with('success', 'Survei berhasil dijadikan template!');
     }
 
-    /**
-     * Buat survei baru dari template yang sudah ada.
-     */
-    public function createFromTemplate(Survey $survey)
+    public function createFromTemplate(Survey $template)
     {
-        // Duplikasi survei template
-        $newSurvey = $survey->replicate();
-        $newSurvey->title = $newSurvey->title . ' (Copy)';
-        $newSurvey->is_template = false; // Survei baru bukan template
+        // Safety check
+        abort_if(!$template->is_template, 404, 'Survei yang dipilih bukan template.');
+        
+        // Dibungkus dalam Transaction
+        $newSurvey = DB::transaction(function () use ($template) {
+            return $this->duplicateSurvey($template, false);
+        });
+        
+        if (!$newSurvey) {
+            return back()->with('error', 'Gagal membuat survei dari template.');
+        }
+
+        return redirect()->route('surveys.edit', $newSurvey->id)->with('success', 'Survei baru berhasil dibuat dari template!');
+    }
+
+    public function destroy(Survey $template)
+    {
+        abort_if(!$template->is_template, 404);
+        $template->delete();
+        return redirect()->route('templates.index')->with('success', 'Template berhasil dihapus!');
+    }
+
+    /**
+     * Ditambahkan: Private method untuk logika duplikasi (Prinsip DRY).
+     *
+     * @param Survey $surveyToDuplicate Survei yang akan diduplikasi.
+     * @param bool $asTemplate Apakah hasil duplikasi adalah template?
+     * @return Survey
+     */
+    private function duplicateSurvey(Survey $surveyToDuplicate, bool $asTemplate): Survey
+    {
+        // Dioptimasi: Eager load semua relasi sebelum loop
+        $surveyToDuplicate->load('questions.options');
+
+        $newSurvey = $surveyToDuplicate->replicate();
+        $newSurvey->is_template = $asTemplate;
+        
+        if ($asTemplate) {
+            $newSurvey->title = $surveyToDuplicate->title . ' (Template)';
+        } else {
+            // Hapus '(Template)' dari judul jika ada, dan tambahkan '(Copy)'
+            $newSurvey->title = str_replace(' (Template)', '', $surveyToDuplicate->title) . ' (Copy)';
+        }
+        
         $newSurvey->save();
 
-        // Duplikasi pertanyaan dan opsi dari template
-        foreach ($survey->questions as $question) {
+        foreach ($surveyToDuplicate->questions as $question) {
             $newQuestion = $question->replicate();
             $newQuestion->survey_id = $newSurvey->id;
             $newQuestion->save();
 
-            // Duplikasi opsi jawaban
             foreach ($question->options as $option) {
                 $newOption = $option->replicate();
                 $newOption->question_id = $newQuestion->id;
@@ -81,14 +97,6 @@ class SurveyTemplateController extends Controller
             }
         }
 
-        return redirect()->route('surveys.edit', $newSurvey->id)->with('success', 'Survei baru berhasil dibuat dari template!');
-    }
-
-    public function destroy(Survey $survey)
-    {
-        $survey->delete();
-        
-        return redirect()->route('templates.index')->with('success', 'Template berhasil dihapus!');
+        return $newSurvey;
     }
 }
-

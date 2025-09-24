@@ -9,7 +9,26 @@ class Answer extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'user_id',
+        'survey_id',
+        'question_id',
+        'answer_skor',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'answer_skor' => 'integer',
+    ];
 
     // Relasi: Satu jawaban dimiliki oleh satu user
     public function user()
@@ -29,9 +48,5 @@ class Answer extends Model
         return $this->belongsTo(Question::class);
     }
 
-    // Relasi: Satu jawaban memilih satu opsi
-    public function option()
-    {
-        return $this->belongsTo(Option::class);
-    }
+    // Relasi option() dihapus karena tidak ada kolom option_id
 }

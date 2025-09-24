@@ -3,92 +3,93 @@
 namespace App\Http\Controllers;
 
 use App\Models\UnitKerja;
+use App\Models\TipeUnit;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreUnitKerjaRequest;
 
 class UnitKerjaController extends Controller
 {
     /**
-     * Tampilkan daftar semua unit kerja.
+     * Menampilkan daftar semua unit kerja dengan filter dan pengurutan.
      */
     public function index(Request $request)
     {
-        $query = UnitKerja::query();
+        // Memulai query dengan eager loading dan menghitung sub-unit
+        $query = UnitKerja::with(['tipeUnit', 'parent'])
+            ->withCount('children') // <-- Kunci untuk tombol "Lihat Sub-Unit"
+            ->filter($request->only('search', 'type', 'parent'));
 
-        if ($request->has('type') && $request->type != '') {
-            $query->where('type', $request->type);
+        // Menerapkan logika pengurutan berdasarkan input dari form filter
+        if ($request->filled('sort')) {
+            match ($request->sort) {
+                'name_asc'  => $query->orderBy('unit_kerja_name', 'asc'),
+                'name_desc' => $query->orderBy('unit_kerja_name', 'desc'),
+                'latest'    => $query->latest(), // Urutkan berdasarkan created_at (terbaru)
+                'oldest'    => $query->oldest(), // Urutkan berdasarkan created_at (terlama)
+                default     => $query->orderBy('id', 'asc'),
+            };
+        } else {
+            // Pengurutan default jika tidak ada input
+            $query->orderBy('id', 'asc');
         }
 
-        $unitKerja = $query->orderBy('id', 'asc')->get();
-        $types = UnitKerja::select('type')->distinct()->pluck('type');
+        // Menjalankan query dengan pagination
+        $unitKerja = $query->paginate(10)->withQueryString();
 
-        return view('unit_kerja.index', compact('unitKerja', 'types'));
+        // Mengambil data untuk mengisi dropdown di panel filter
+        $tipeUnits = TipeUnit::orderBy('nama_tipe_unit', 'asc')->get();
+        $parentUnits = UnitKerja::orderBy('unit_kerja_name', 'asc')->get();
+
+        return view('unit_kerja.index', compact('unitKerja', 'tipeUnits', 'parentUnits'));
     }
 
     /**
-     * Tampilkan formulir untuk membuat unit kerja baru.
+     * Menampilkan formulir untuk membuat unit kerja baru.
      */
     public function create()
     {
-        return view('unit_kerja.create');
+        return view('unit_kerja.create', [
+            'tipeUnits' => TipeUnit::pluck('nama_tipe_unit', 'id'),
+            'parentUnits' => UnitKerja::pluck('unit_kerja_name', 'id')
+        ]);
     }
 
     /**
-     * Simpan unit kerja yang baru dibuat ke database.
+     * Menyimpan unit kerja baru ke database.
      */
-    public function store(Request $request)
+    public function store(StoreUnitKerjaRequest $request)
     {
-        $validatedData = $request->validate([
-            'unit_kerja_name' => 'required|max:255',
-            'uk_short_name'   => 'nullable|max:255',
-            'type'            => 'required|max:255',
-            'parent_id'       => 'nullable|integer',
-            'contact'         => 'nullable|max:255',
-            'address'         => 'nullable|max:255',
-            'start_time'      => 'nullable',
-            'end_time'        => 'nullable',
-        ]);
-
-        UnitKerja::create($validatedData);
-
+        UnitKerja::create($request->validated());
         return redirect()->route('unit-kerja.index')->with('success', 'Unit kerja berhasil ditambahkan!');
     }
 
     /**
-     * Tampilkan formulir untuk mengedit unit kerja.
+     * Menampilkan formulir untuk mengedit unit kerja.
      */
     public function edit(UnitKerja $unitKerja)
     {
-        return view('unit_kerja.edit', compact('unitKerja'));
+        return view('unit_kerja.edit', [
+            'unitKerja' => $unitKerja,
+            'tipeUnits' => TipeUnit::pluck('nama_tipe_unit', 'id'),
+            'parentUnits' => UnitKerja::pluck('unit_kerja_name', 'id')
+        ]);
     }
 
     /**
-     * Perbarui data unit kerja di database.
+     * Memperbarui data unit kerja di database.
      */
-    public function update(Request $request, UnitKerja $unitKerja)
+    public function update(StoreUnitKerjaRequest $request, UnitKerja $unitKerja)
     {
-        $validatedData = $request->validate([
-            'unit_kerja_name' => 'required|max:255',
-            'uk_short_name'   => 'nullable|max:255',
-            'type'            => 'required|max:255',
-            'parent_id'       => 'nullable|integer',
-            'contact'         => 'nullable|max:255',
-            'address'         => 'nullable|max:255',
-            'start_time'      => 'nullable',
-            'end_time'        => 'nullable',
-        ]);
-
-        $unitKerja->update($validatedData);
-
+        $unitKerja->update($request->validated());
         return redirect()->route('unit-kerja.index')->with('success', 'Data unit kerja berhasil diperbarui!');
     }
 
     /**
-     * Hapus unit kerja dari database.
+     * Menghapus unit kerja dari database.
      */
     public function destroy(UnitKerja $unitKerja)
     {
         $unitKerja->delete();
-
         return redirect()->route('unit-kerja.index')->with('success', 'Unit kerja berhasil dihapus!');
     }
 }

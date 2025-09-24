@@ -9,9 +9,19 @@ class Role extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'role_name',
+        'code',
+    ];
 
-    // Relasi: Satu role bisa dimiliki oleh banyak user
+    /**
+     * Get the users for the Role.
+     */
     public function users()
     {
         return $this->hasMany(User::class);

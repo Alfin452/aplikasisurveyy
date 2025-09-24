@@ -9,21 +9,38 @@ class Question extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'survey_id',
+        'question_body',
+        'type',
+    ];
 
-    // Relasi: Satu pertanyaan dimiliki oleh satu survey
+    // --- RELASI ANDA SUDAH SEMPURNA ---
+
+    /**
+     * Get the survey that owns the question.
+     */
     public function survey()
     {
         return $this->belongsTo(Survey::class);
     }
 
-    // Relasi: Satu pertanyaan memiliki banyak pilihan jawaban
+    /**
+     * Get the options for the question.
+     */
     public function options()
     {
         return $this->hasMany(Option::class);
     }
 
-    // Relasi: Satu pertanyaan bisa memiliki banyak jawaban
+    /**
+     * Get the answers for the question.
+     */
     public function answers()
     {
         return $this->hasMany(Answer::class);
