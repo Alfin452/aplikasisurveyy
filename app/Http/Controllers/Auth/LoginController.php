@@ -25,6 +25,7 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+            // DIUBAH: Menggunakan method redirect yang sudah disempurnakan
             return $this->redirectBasedOnRole(Auth::user());
         }
 
@@ -33,18 +34,25 @@ class LoginController extends Controller
         ]);
     }
 
-    // Logika untuk mengarahkan user setelah login
+    /**
+     * DIUBAH: Logika pengalihan sekarang menggunakan role_id untuk keandalan
+     * dan mengarah ke rute yang benar.
+     */
     protected function redirectBasedOnRole($user)
     {
-        switch ($user->role->role_name) {
-            case 'super_admin':
-                return redirect()->intended('/superadmin/dashboard');
-            case 'unit_kerja':
-                return redirect()->intended('/unitkerja/dashboard');
-            case 'responden':
-                return redirect()->intended('/');
+        switch ($user->role_id) {
+            // Role ID 1 untuk Superadmin
+            case 1:
+                return redirect()->route('superadmin.dashboard');
+                // Role ID 2 untuk Admin Unit Kerja
+            case 2:
+                return redirect()->route('unitkerja.admin.dashboard');
+                // Role ID 3 untuk Responden (atau peran lainnya)
+            case 3:
+                return redirect()->route('home'); // Sesuaikan jika responden punya dasbor sendiri
+                // Default fallback
             default:
-                return redirect()->intended('/');
+                return redirect()->route('home');
         }
     }
 

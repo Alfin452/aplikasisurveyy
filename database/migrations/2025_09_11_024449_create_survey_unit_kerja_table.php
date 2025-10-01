@@ -12,10 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('survey_unit_kerja', function (Blueprint $table) {
-            $table->id();
+            // Kolom ini akan terhubung ke tabel 'surveys'
             $table->foreignId('survey_id')->constrained('surveys')->onDelete('cascade');
+            
+            // Kolom ini akan terhubung ke tabel 'unit_kerjas'
             $table->foreignId('unit_kerja_id')->constrained('unit_kerjas')->onDelete('cascade');
-            $table->timestamps();
+
+            // DIUBAH: Menjadikan kombinasi keduanya sebagai primary key
+            $table->primary(['survey_id', 'unit_kerja_id']);
         });
     }
 

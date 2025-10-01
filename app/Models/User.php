@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder; // <-- DITAMBAHKAN
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -21,9 +22,10 @@ class User extends Authenticatable
         'email',
         'password',
         'google_id',
-        'role_id', // <-- DITAMBAHKAN
-        'is_active', // <-- DITAMBAHKAN
-        'email_verified', // <-- DITAMBAHKAN
+        'role_id',
+        'unit_kerja_id', // <-- DITAMBAHKAN
+        'is_active',
+        'email_verified',
     ];
 
     /**
@@ -33,7 +35,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
-        // 'remember_token', // Jika Anda menggunakan fitur "remember me"
+        // 'remember_token',
     ];
 
     /**
@@ -44,7 +46,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified' => 'boolean',
         'is_active' => 'boolean',
-        'password' => 'hashed', // Otomatis hash password saat di-set
+        'password' => 'hashed',
     ];
 
     // --- RELASI ANDA SUDAH SEMPURNA ---
@@ -62,5 +64,31 @@ class User extends Authenticatable
     public function answers()
     {
         return $this->hasMany(Answer::class);
+    }
+
+    /**
+     * DITAMBAHKAN: Local Scope untuk menangani semua logika filter.
+     */
+    public function scopeFilter(Builder $query, array $filters): Builder
+    {
+        // Filter berdasarkan pencarian nama atau email
+        $query->when($filters['search'] ?? false, function ($query, $search) {
+            return $query->where(function ($q) use ($search) {
+                $q->where('username', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%');
+            });
+        });
+
+        // Filter berdasarkan peran (role)
+        $query->when($filters['role'] ?? false, function ($query, $roleId) {
+            return $query->where('role_id', $roleId);
+        });
+
+        // Filter berdasarkan unit kerja
+        $query->when($filters['unit_kerja'] ?? false, function ($query, $unitKerjaId) {
+            return $query->where('unit_kerja_id', $unitKerjaId);
+        });
+
+        return $query;
     }
 }

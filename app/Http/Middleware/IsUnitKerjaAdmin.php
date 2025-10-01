@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class IsSuperadmin
+class IsUnitKerjaAdmin
 {
     /**
      * Handle an incoming request.
@@ -16,13 +16,13 @@ class IsSuperadmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Cek apakah pengguna adalah Superadmin (role_id 1)
-        if (Auth::check() && Auth::user()->role_id == 1) {
-            // Izinkan permintaan untuk melanjutkan
+        // DIUBAH: Memeriksa role_id untuk konsistensi dan keandalan
+        // Pastikan pengguna sudah login dan memiliki role_id 2 (Admin)
+        if (Auth::check() && Auth::user()->role_id == 2) {
             return $next($request);
         }
 
-        // Jika tidak, kembalikan ke halaman login
+        // Jika tidak, kembalikan ke halaman login dengan pesan error
         return redirect()->route('login')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
     }
 }

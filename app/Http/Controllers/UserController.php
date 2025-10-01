@@ -6,23 +6,36 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\UnitKerja;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth; // <-- DITAMBAHKAN
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    /**
-     * Tampilkan daftar semua pengguna.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('role', 'unitKerja')->get();
-        return view('users.index', compact('users'));
+        $query = User::with('role', 'unitKerja')
+            ->filter($request->only('search', 'role', 'unit_kerja'));
+
+        if ($request->filled('sort')) {
+            match ($request->sort) {
+                'name_asc'   => $query->orderBy('username', 'asc'),
+                'name_desc'  => $query->orderBy('username', 'desc'),
+                'latest'     => $query->latest(),
+                'oldest'     => $query->oldest(),
+                default      => $query->latest(),
+            };
+        } else {
+            $query->latest();
+        }
+
+        $users = $query->paginate(10)->withQueryString();
+        $roles = Role::orderBy('role_name', 'asc')->get();
+        $unitKerjas = UnitKerja::orderBy('unit_kerja_name', 'asc')->get();
+
+        return view('users.index', compact('users', 'roles', 'unitKerjas'));
     }
 
-    /**
-     * Tampilkan formulir untuk membuat pengguna baru.
-     */
     public function create()
     {
         $roles = Role::all();
@@ -30,9 +43,6 @@ class UserController extends Controller
         return view('users.create', compact('roles', 'unitKerja'));
     }
 
-    /**
-     * Simpan pengguna baru ke database.
-     */
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -40,7 +50,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6',
             'role_id' => 'required|exists:roles,id',
-            'unit_kerja_id' => 'nullable|exists:unit_kerja,id',
+            'unit_kerja_id' => 'nullable|exists:unit_kerjas,id',
         ]);
 
         $validatedData['password'] = Hash::make($validatedData['password']);
@@ -49,9 +59,6 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'Pengguna berhasil ditambahkan!');
     }
 
-    /**
-     * Tampilkan formulir untuk mengedit pengguna.
-     */
     public function edit(User $user)
     {
         $roles = Role::all();
@@ -59,9 +66,6 @@ class UserController extends Controller
         return view('users.edit', compact('user', 'roles', 'unitKerja'));
     }
 
-    /**
-     * Perbarui data pengguna di database.
-     */
     public function update(Request $request, User $user)
     {
         $validatedData = $request->validate([
@@ -69,7 +73,7 @@ class UserController extends Controller
             'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
             'password' => 'nullable|min:6',
             'role_id' => 'required|exists:roles,id',
-            'unit_kerja_id' => 'nullable|exists:unit_kerja,id',
+            'unit_kerja_id' => 'nullable|exists:unit_kerjas,id',
         ]);
 
         if ($request->filled('password')) {
@@ -78,16 +82,25 @@ class UserController extends Controller
             unset($validatedData['password']);
         }
 
+        if (!isset($validatedData['unit_kerja_id'])) {
+            $validatedData['unit_kerja_id'] = null;
+        }
+
         $user->update($validatedData);
 
         return redirect()->route('users.index')->with('success', 'Data pengguna berhasil diperbarui!');
     }
 
     /**
-     * Hapus pengguna dari database.
+     * DIUBAH: Menggunakan fasad Auth yang eksplisit.
      */
     public function destroy(User $user)
     {
+        // Tambahkan proteksi agar tidak bisa menghapus diri sendiri
+        if ($user->id === Auth::id()) {
+            return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+        }
+
         $user->delete();
         return redirect()->route('users.index')->with('success', 'Pengguna berhasil dihapus!');
     }

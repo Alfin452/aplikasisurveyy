@@ -10,9 +10,10 @@ class SurveyTemplateController extends Controller
 {
     public function index()
     {
-        // Dioptimasi: Menggunakan pluck untuk dropdown lebih efisien
-        $templates = Survey::where('is_template', true)->latest()->get();
-        $surveysToCopy = Survey::where('is_template', false)->pluck('title', 'id');
+        // Memuat template beserta jumlah pertanyaannya
+        $templates = Survey::where('is_template', true)->withCount('questions')->latest()->get();
+        // Mengambil survei lengkap beserta jumlah pertanyaannya
+        $surveysToCopy = Survey::where('is_template', false)->withCount('questions')->get();
 
         return view('templates.index', compact('templates', 'surveysToCopy'));
     }
@@ -25,7 +26,6 @@ class SurveyTemplateController extends Controller
 
         $originalSurvey = Survey::findOrFail($validated['survey_id']);
 
-        // Dibungkus dalam Transaction
         $newTemplate = DB::transaction(function () use ($originalSurvey) {
             return $this->duplicateSurvey($originalSurvey, true);
         });
@@ -39,14 +39,12 @@ class SurveyTemplateController extends Controller
 
     public function createFromTemplate(Survey $template)
     {
-        // Safety check
         abort_if(!$template->is_template, 404, 'Survei yang dipilih bukan template.');
-        
-        // Dibungkus dalam Transaction
+
         $newSurvey = DB::transaction(function () use ($template) {
             return $this->duplicateSurvey($template, false);
         });
-        
+
         if (!$newSurvey) {
             return back()->with('error', 'Gagal membuat survei dari template.');
         }
@@ -62,39 +60,50 @@ class SurveyTemplateController extends Controller
     }
 
     /**
-     * Ditambahkan: Private method untuk logika duplikasi (Prinsip DRY).
-     *
-     * @param Survey $surveyToDuplicate Survei yang akan diduplikasi.
-     * @param bool $asTemplate Apakah hasil duplikasi adalah template?
-     * @return Survey
+     * Private method untuk logika duplikasi yang sudah disempurnakan.
      */
     private function duplicateSurvey(Survey $surveyToDuplicate, bool $asTemplate): Survey
     {
-        // Dioptimasi: Eager load semua relasi sebelum loop
-        $surveyToDuplicate->load('questions.options');
+        $surveyToDuplicate->load('questions.options', 'unitKerja');
 
+        // DIUBAH: Kita tidak lagi mengecualikan tanggal. Kita akan menyalinnya
+        // sebagai placeholder dan hanya mengatur ulang status aktif.
         $newSurvey = $surveyToDuplicate->replicate();
+
         $newSurvey->is_template = $asTemplate;
-        
+
         if ($asTemplate) {
             $newSurvey->title = $surveyToDuplicate->title . ' (Template)';
+            // Template yang baru dibuat seharusnya tidak aktif
+            $newSurvey->is_active = false;
         } else {
-            // Hapus '(Template)' dari judul jika ada, dan tambahkan '(Copy)'
             $newSurvey->title = str_replace(' (Template)', '', $surveyToDuplicate->title) . ' (Copy)';
+            // Survei baru dari template juga harus dimulai sebagai tidak aktif
+            // agar pengguna bisa mengaturnya di halaman edit.
+            $newSurvey->is_active = false;
         }
-        
+
         $newSurvey->save();
 
-        foreach ($surveyToDuplicate->questions as $question) {
-            $newQuestion = $question->replicate();
-            $newQuestion->survey_id = $newSurvey->id;
-            $newQuestion->save();
+        // Duplikasi pertanyaan dan opsi
+        if ($surveyToDuplicate->questions->isNotEmpty()) {
+            foreach ($surveyToDuplicate->questions as $question) {
+                $newQuestion = $question->replicate()->fill(['survey_id' => $newSurvey->id]);
+                $newQuestion->save();
 
-            foreach ($question->options as $option) {
-                $newOption = $option->replicate();
-                $newOption->question_id = $newQuestion->id;
-                $newOption->save();
+                if ($question->options->isNotEmpty()) {
+                    $newOptions = $question->options->map(function ($option) use ($newQuestion) {
+                        return $option->replicate()->fill(['question_id' => $newQuestion->id]);
+                    });
+                    $newQuestion->options()->saveMany($newOptions);
+                }
             }
+        }
+
+        // Duplikasi relasi many-to-many ke unitKerja
+        $unitKerjaIds = $surveyToDuplicate->unitKerja->pluck('id');
+        if ($unitKerjaIds->isNotEmpty()) {
+            $newSurvey->unitKerja()->sync($unitKerjaIds);
         }
 
         return $newSurvey;
