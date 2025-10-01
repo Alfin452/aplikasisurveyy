@@ -1,51 +1,29 @@
 @csrf
-<div class="space-y-10">
+<div class="space-y-8">
 
-    {{-- BAGIAN 1: INFORMASI UTAMA --}}
-    <div>
-        {{-- Header Bagian yang Unik --}}
-        <div class="flex items-center mb-6">
-            <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-indigo-500 text-white rounded-full">
-                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.01 9.383l4.01 1.718a.999.999 0 01.356.257l4-1.714a1 1 0 11.788 1.838L9.08 12.335l1.94.83a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84zM12 13a1 1 0 100 2h3a1 1 0 100-2h-3z" />
-                </svg>
-            </div>
-            <div class="ml-4">
-                <h3 class="text-lg font-semibold text-gray-800">Informasi Utama</h3>
-                <p class="text-sm text-gray-500">Detail dasar mengenai unit kerja.</p>
-            </div>
-        </div>
-        {{-- Konten Form --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pl-14">
+    {{-- KARTU 1: INFORMASI UTAMA --}}
+    <div class="p-6 bg-gray-50 rounded-lg border border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">1. Informasi Utama</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <label for="unit_kerja_name" class="block text-sm font-medium text-gray-700 mb-1">Nama Unit Kerja</label>
-                <input type="text" id="unit_kerja_name" name="unit_kerja_name" value="{{ old('unit_kerja_name', $unitKerja->unit_kerja_name ?? '') }}" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" required>
+                {{-- DIUBAH: Menghapus ikon dan memperbesar input --}}
+                <input type="text" id="unit_kerja_name" name="unit_kerja_name" value="{{ old('unit_kerja_name', $unitKerja->unit_kerja_name ?? '') }}" class="w-full px-4 py-2.5 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" required>
                 @error('unit_kerja_name') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
             </div>
             <div>
                 <label for="uk_short_name" class="block text-sm font-medium text-gray-700 mb-1">Nama Singkat (Akronim)</label>
-                <input type="text" id="uk_short_name" name="uk_short_name" value="{{ old('uk_short_name', $unitKerja->uk_short_name ?? '') }}" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                {{-- DIUBAH: Menghapus ikon dan memperbesar input --}}
+                <input type="text" id="uk_short_name" name="uk_short_name" value="{{ old('uk_short_name', $unitKerja->uk_short_name ?? '') }}" class="w-full px-4 py-2.5 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
                 @error('uk_short_name') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
             </div>
         </div>
     </div>
 
-    {{-- BAGIAN 2: STRUKTUR ORGANISASI --}}
-    <div>
-        {{-- Header Bagian yang Unik --}}
-        <div class="flex items-center mb-6">
-            <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-indigo-500 text-white rounded-full">
-                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m-7.5-2.969A3 3 0 0012 12.75a3 3 0 00-3.75 0m-7.5 0a3 3 0 003.75 0M12 12.75a3 3 0 00-3.75 0M3.75 6.75a3 3 0 00-3.75 0m7.5 0a3 3 0 00-3.75 0m7.5 0a3 3 0 00-3.75 0m3.75 2.25a3 3 0 00-3.75 0m0 0a3 3 0 00-3.75 0m0 0a3 3 0 00-3.75 0M12 6.75a3 3 0 00-3.75 0m0 0a3 3 0 00-3.75 0m0 0a3 3 0 00-3.75 0" />
-                </svg>
-            </div>
-            <div class="ml-4">
-                <h3 class="text-lg font-semibold text-gray-800">Struktur Organisasi</h3>
-                <p class="text-sm text-gray-500">Kategori dan posisi dalam hierarki.</p>
-            </div>
-        </div>
-        {{-- Konten Form --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pl-14">
+    {{-- KARTU 2: STRUKTUR ORGANISASI --}}
+    <div class="p-6 bg-gray-50 rounded-lg border border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">2. Struktur Organisasi</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <label for="tipe_unit_id" class="block text-sm font-medium text-gray-700 mb-1">Tipe Unit</label>
                 <select id="tipe_unit_select" name="tipe_unit_id" required>
@@ -70,41 +48,57 @@
         </div>
     </div>
 
-    {{-- BAGIAN 3: INFORMASI OPERASIONAL --}}
-    <div>
-        {{-- Header Bagian yang Unik --}}
-        <div class="flex items-center mb-6">
-            <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-indigo-500 text-white rounded-full">
-                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-            <div class="ml-4">
-                <h3 class="text-lg font-semibold text-gray-800">Informasi Operasional</h3>
-                <p class="text-sm text-gray-500">Detail kontak, lokasi, dan jam layanan.</p>
-            </div>
-        </div>
-        {{-- Konten Form --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pl-14">
+    {{-- KARTU 3: INFORMASI OPERASIONAL --}}
+    <div class="p-6 bg-gray-50 rounded-lg border border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">3. Informasi Operasional</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <label for="contact" class="block text-sm font-medium text-gray-700 mb-1">Kontak (Telepon/Email)</label>
-                <input type="text" id="contact" name="contact" value="{{ old('contact', $unitKerja->contact ?? '') }}" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                        </svg>
+                    </div>
+                    <input type="text" id="contact" name="contact" value="{{ old('contact', $unitKerja->contact ?? '') }}" class="w-full pl-10 py-2.5 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                </div>
                 @error('contact') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
             </div>
             <div>
                 <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Lokasi (Gedung/Ruangan)</label>
-                <input type="text" id="address" name="address" value="{{ old('address', $unitKerja->address ?? '') }}" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <input type="text" id="address" name="address" value="{{ old('address', $unitKerja->address ?? '') }}" class="w-full pl-10 py-2.5 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                </div>
                 @error('address') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
             </div>
-            <div class="grid grid-cols-2 gap-6">
+            <div class="md:col-span-2 grid grid-cols-2 gap-6">
                 <div>
-                    <label for="start_time" class="block text-sm font-medium text-gray-700 mb-1">Jam Mulai</label>
-                    <input type="text" id="start_time" name="start_time" value="{{ old('start_time', $unitKerja->start_time ?? '') }}" class="timepicker w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                    <label for="start_time" class="block text-sm font-medium text-gray-700 mb-1">Jam Mulai Layanan</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <input type="text" id="start_time" name="start_time" value="{{ old('start_time', $unitKerja->start_time ?? '') }}" class="timepicker w-full pl-10 py-2.5 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                    </div>
                     @error('start_time') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                 </div>
                 <div>
-                    <label for="end_time" class="block text-sm font-medium text-gray-700 mb-1">Jam Selesai</label>
-                    <input type="text" id="end_time" name="end_time" value="{{ old('end_time', $unitKerja->end_time ?? '') }}" class="timepicker w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                    <label for="end_time" class="block text-sm font-medium text-gray-700 mb-1">Jam Selesai Layanan</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <input type="text" id="end_time" name="end_time" value="{{ old('end_time', $unitKerja->end_time ?? '') }}" class="timepicker w-full pl-10 py-2.5 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                    </div>
                     @error('end_time') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                 </div>
             </div>

@@ -14,7 +14,8 @@
                             <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <input type="text" id="title" name="title" value="{{ old('title', $survey->title ?? '') }}" class="w-full pl-10 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" required placeholder="Contoh: Survei Kepuasan Layanan Akademik">
+                    {{-- DIUBAH: Menambahkan py-2.5 untuk memperbesar input --}}
+                    <input type="text" id="title" name="title" value="{{ old('title', $survey->title ?? '') }}" class="w-full pl-10 py-2.5 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" required placeholder="Contoh: Survei Kepuasan Layanan Akademik">
                 </div>
                 @error('title') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
             </div>
@@ -22,7 +23,8 @@
             {{-- Deskripsi --}}
             <div>
                 <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
-                <textarea id="description" name="description" rows="4" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" placeholder="Jelaskan tujuan dari survei ini secara singkat">{{ old('description', $survey->description ?? '') }}</textarea>
+                {{-- DIUBAH: Menambahkan padding untuk memperbesar textarea --}}
+                <textarea id="description" name="description" rows="4" class="w-full p-4 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" placeholder="Jelaskan tujuan dari survei ini secara singkat">{{ old('description', $survey->description ?? '') }}</textarea>
                 @error('description') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
             </div>
         </div>
@@ -72,7 +74,7 @@
     </div>
 </div>
 
-{{-- DIUBAH: Separator Visual Anti-Mainstream --}}
+{{-- Separator Visual Anti-Mainstream --}}
 <div class="relative my-8">
     <div class="absolute inset-0 flex items-center" aria-hidden="true">
         <div class="w-full border-t border-gray-200"></div>
