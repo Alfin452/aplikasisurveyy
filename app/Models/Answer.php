@@ -18,7 +18,8 @@ class Answer extends Model
         'user_id',
         'survey_id',
         'question_id',
-        'answer_skor',
+        'option_id',    // <-- Pastikan ini ada
+        'answer_skor',  // <-- Dan ini juga ditambahkan
     ];
 
     /**

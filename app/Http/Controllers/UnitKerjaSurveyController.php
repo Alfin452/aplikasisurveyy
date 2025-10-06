@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Survey;
-use Illuminate\Http\Request; // <-- DITAMBAHKAN
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -12,9 +12,6 @@ class UnitKerjaSurveyController extends Controller
 {
     use AuthorizesRequests;
 
-    /**
-     * DIUBAH: Method index() sekarang menangani filter dan sorting.
-     */
     public function index(Request $request)
     {
         $unitKerjaId = Auth::user()->unit_kerja_id;
@@ -23,45 +20,45 @@ class UnitKerjaSurveyController extends Controller
             return view('unit_kerja_admin.surveys.index', ['surveys' => collect(), 'years' => collect()]);
         }
 
-        // Mulai query dengan filter dasar: hanya survei milik unit kerja ini
         $query = Survey::whereHas('unitKerja', function ($q) use ($unitKerjaId) {
             $q->where('unit_kerjas.id', $unitKerjaId);
         })
-        ->where('is_template', false)
-        // Terapkan filter dari request (search, status, year)
-        ->filter($request->only('search', 'status', 'year'));
+            ->where('is_template', false)
+            ->filter($request->only('search', 'status', 'year'));
 
-        // Logika pengurutan
-        $sort = $request->input('sort', 'latest'); // Default ke 'latest'
+        $sort = $request->input('sort', 'latest');
         match ($sort) {
             'title_asc'   => $query->orderBy('title', 'asc'),
             'title_desc'  => $query->orderBy('title', 'desc'),
             'oldest'      => $query->oldest(),
             default       => $query->latest(),
         };
-        
+
         $surveys = $query->with('unitKerja')->paginate(10)->withQueryString();
 
-        // Ambil tahun-tahun unik dari survei MILIK UNIT KERJA INI saja untuk dropdown filter
         $years = Survey::whereHas('unitKerja', function ($q) use ($unitKerjaId) {
-                    $q->where('unit_kerjas.id', $unitKerjaId);
-                 })
-                 ->where('is_template', false)
-                 ->selectRaw('YEAR(created_at) as year')
-                 ->distinct()
-                 ->orderBy('year', 'desc')
-                 ->pluck('year');
+            $q->where('unit_kerjas.id', $unitKerjaId);
+        })
+            ->where('is_template', false)
+            ->selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
 
         return view('unit_kerja_admin.surveys.index', compact('surveys', 'years'));
     }
 
-    // ... (method create, store, show, edit, update, destroy tidak berubah) ...
     public function create()
     {
         return view('unit_kerja_admin.surveys.create');
     }
+
+    /**
+     * DIUBAH: Method store() sekarang sudah lengkap dengan logika penyimpanan.
+     */
     public function store(Request $request)
     {
+        // 1. Validasi input dari form
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -74,23 +71,43 @@ class UnitKerjaSurveyController extends Controller
         if (!$unitKerjaId) {
             return back()->with('error', 'Anda tidak terhubung dengan unit kerja manapun.');
         }
+
+        DB::beginTransaction();
+        try {
+            // 2. Buat survei baru
+            $survey = Survey::create([
+                'title'       => $validated['title'],
+                'description' => $validated['description'],
+                'start_date'  => $validated['start_date'],
+                'end_date'    => $validated['end_date'],
+                'is_active'   => $request->boolean('is_active'),
+            ]);
+
+            // 3. Hubungkan survei dengan unit kerja admin secara otomatis
+            $survey->unitKerja()->attach($unitKerjaId);
+
+            DB::commit();
+
+            return redirect()->route('unitkerja.admin.surveys.index')->with('success', 'Survei berhasil dibuat!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan saat membuat survei: ' . $e->getMessage());
+        }
     }
+
     public function show(Survey $survey)
     {
-        // 1. Pastikan pengguna berhak melihat survei ini
         $this->authorize('view', $survey);
-
-        // 2. Ambil semua pertanyaan & opsi terkait dari survei ini
         $survey->load('questions.options');
-
-        // 3. Tampilkan halaman "Kelola Pertanyaan"
         return view('unit_kerja_admin.surveys.show', compact('survey'));
     }
+
     public function edit(Survey $survey)
     {
         $this->authorize('update', $survey);
         return view('unit_kerja_admin.surveys.edit', compact('survey'));
     }
+
     public function update(Request $request, Survey $survey)
     {
         $this->authorize('update', $survey);
@@ -112,6 +129,7 @@ class UnitKerjaSurveyController extends Controller
 
         return redirect()->route('unitkerja.admin.surveys.index')->with('success', 'Survei berhasil diperbarui!');
     }
+
     public function destroy(Survey $survey)
     {
         $this->authorize('delete', $survey);
@@ -119,4 +137,3 @@ class UnitKerjaSurveyController extends Controller
         return redirect()->route('unitkerja.admin.surveys.index')->with('success', 'Survei berhasil dihapus!');
     }
 }
-

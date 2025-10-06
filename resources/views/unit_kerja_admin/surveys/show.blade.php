@@ -8,6 +8,7 @@
             <h1 class="text-3xl font-bold text-gray-800">{{ $survey->title }}</h1>
             <p class="text-gray-500">Kelola pertanyaan untuk survei ini.</p>
         </div>
+        {{-- DIUBAH: Memastikan tombol ini menggunakan rute yang benar dan akan ditangani oleh QuestionController yang cerdas --}}
         <a href="{{ route('surveys.questions.create', $survey->id) }}" class="bg-teal-500 text-white px-5 py-2 rounded-lg font-medium hover:bg-teal-600 transition duration-300 shadow-md flex items-center space-x-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
@@ -33,6 +34,7 @@
                 </span>
             </div>
             <div class="flex items-center space-x-4">
+                {{-- DIUBAH: Memastikan tombol Edit juga menggunakan rute yang benar --}}
                 <a href="{{ route('surveys.questions.edit', ['survey' => $survey->id, 'question' => $question->id]) }}" class="text-teal-600 hover:text-teal-800" title="Edit Pertanyaan">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

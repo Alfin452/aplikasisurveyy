@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="p-6 bg-white rounded-xl shadow-md">
+<div class="p-6 bg-white rounded-xl shadow-md" x-data="{ openDeleteModal: false, deleteUrl: '', deleteItemName: '' }">
     <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800">Daftar Survei</h1>
         <div class="mt-4 md:mt-0 flex space-x-3">
@@ -20,11 +20,10 @@
         </div>
     </div>
 
-    {{-- Panel Filter dengan Desain Baru yang Lebih Modern dan Minimalis --}}
+    {{-- Panel Filter --}}
     <div class="bg-white rounded-lg p-4 mb-6 border border-gray-200 shadow-sm">
         <form action="{{ route('surveys.index') }}" method="GET">
             <div class="flex flex-wrap items-center gap-4">
-                {{-- Pencarian Nama (Elemen Utama) --}}
                 <div class="flex-grow relative min-w-[250px]">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -33,8 +32,6 @@
                     </div>
                     <input type="text" name="search" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Cari judul survei..." value="{{ request('search') }}">
                 </div>
-
-                {{-- Dropdown Filter Lainnya --}}
                 <select name="status" class="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     <option value="">Semua Status</option>
                     <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Aktif</option>
@@ -58,8 +55,6 @@
                     <option value="title_desc" {{ request('sort') == 'title_desc' ? 'selected' : '' }}>Judul (Z-A)</option>
                     <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Terbaru</option>
                 </select>
-
-                {{-- Tombol Aksi di Sebelah Kanan --}}
                 <div class="flex items-center gap-3 ml-auto">
                     <a href="{{ route('surveys.index') }}" class="text-sm font-semibold text-gray-600 hover:text-gray-800">Reset</a>
                     <button type="submit" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition shadow-sm flex items-center space-x-2">
@@ -83,7 +78,6 @@
         <table class="min-w-full bg-white divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    {{-- DIUBAH: Ukuran font header diperbesar menjadi text-sm --}}
                     <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">No.</th>
                     <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Judul Survei</th>
                     <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Periode & Status</th>
@@ -91,7 +85,6 @@
                     <th scope="col" class="px-6 py-3 text-center text-sm font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                 </tr>
             </thead>
-            {{-- DIUBAH: Dihapus text-sm dari tbody untuk memperbesar font --}}
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse ($surveys as $survey)
                 <tr class="hover:bg-gray-50">
@@ -120,6 +113,13 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium align-top">
                         <div class="flex items-center justify-center space-x-4">
+                            {{-- DITAMBAHKAN: Tombol Lihat Hasil Survei --}}
+                            <a href="{{ route('surveys.results', $survey->id) }}" class="text-green-600 hover:text-green-800" title="Lihat Hasil">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
+                                    <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
+                                </svg>
+                            </a>
                             <a href="{{ route('surveys.show', $survey->id) }}" class="text-purple-600 hover:text-purple-800" title="Kelola Pertanyaan">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                     <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
