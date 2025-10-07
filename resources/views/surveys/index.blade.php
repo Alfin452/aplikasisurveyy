@@ -2,21 +2,51 @@
 
 @section('content')
 <div class="p-6 bg-white rounded-xl shadow-md" x-data="{ openDeleteModal: false, deleteUrl: '', deleteItemName: '' }">
-    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Daftar Survei</h1>
-        <div class="mt-4 md:mt-0 flex space-x-3">
-            <a href="{{ route('templates.index') }}" class="bg-gray-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-gray-700 transition duration-300 shadow-md flex items-center space-x-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
-                </svg>
-                <span>Template</span>
-            </a>
-            <a href="{{ route('surveys.create') }}" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-indigo-700 transition duration-300 shadow-md flex items-center space-x-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-                </svg>
-                <span>Tambah Survei</span>
-            </a>
+
+    {{-- DIUBAH: Header Halaman Premium dengan Breadcrumbs --}}
+    <div class="mb-6 bg-white rounded-xl p-4 md:p-6 border-l-4 border-indigo-500 shadow">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-center">
+            <div>
+                <!-- Breadcrumbs -->
+                <nav class="text-sm mb-2 font-medium text-gray-500" aria-label="Breadcrumb">
+                    <ol class="list-none p-0 inline-flex">
+                        <li class="flex items-center">
+                            <a href="{{ route('superadmin.dashboard') }}" class="hover:text-indigo-600">Dashboard</a>
+                            <svg class="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+                                <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569 9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
+                            </svg>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-gray-700">Manajemen Survei</span>
+                        </li>
+                    </ol>
+                </nav>
+                <div class="flex items-center gap-4">
+                    <div class="flex-shrink-0 bg-indigo-500 text-white p-3 rounded-lg shadow-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Daftar Survei</h1>
+                        <p class="text-sm text-gray-500 mt-1">Kelola, analisis, dan buat survei baru dari sini.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 md:mt-0 flex space-x-3 self-start md:self-end">
+                <a href="{{ route('templates.index') }}" class="bg-gray-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-gray-700 transition duration-300 shadow-md flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
+                    </svg>
+                    <span>Template</span>
+                </a>
+                <a href="{{ route('surveys.create') }}" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-indigo-700 transition duration-300 shadow-md flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Tambah Survei</span>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -32,29 +62,63 @@
                     </div>
                     <input type="text" name="search" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Cari judul survei..." value="{{ request('search') }}">
                 </div>
-                <select name="status" class="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="">Semua Status</option>
-                    <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Aktif</option>
-                    <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Tidak Aktif</option>
-                </select>
-                <select name="unit_kerja" class="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="">Semua Unit</option>
-                    @foreach ($unitKerjas as $unit)
-                    <option value="{{ $unit->id }}" {{ request('unit_kerja') == $unit->id ? 'selected' : '' }}>{{ $unit->uk_short_name }}</option>
-                    @endforeach
-                </select>
-                <select name="year" class="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="">Semua Tahun</option>
-                    @foreach ($years as $year)
-                    <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
-                    @endforeach
-                </select>
-                <select name="sort" class="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="">Urutkan</option>
-                    <option value="title_asc" {{ request('sort') == 'title_asc' ? 'selected' : '' }}>Judul (A-Z)</option>
-                    <option value="title_desc" {{ request('sort') == 'title_desc' ? 'selected' : '' }}>Judul (Z-A)</option>
-                    <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Terbaru</option>
-                </select>
+
+                {{-- DIUBAH: Dropdown Filter dengan Animasi --}}
+                <div x-data="{ open: false }" class="relative">
+                    <select name="status" @focus="open = true" @blur="open = false" class="w-full sm:w-auto pl-4 pr-10 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none">
+                        <option value="">Semua Status</option>
+                        <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Aktif</option>
+                        <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Tidak Aktif</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                        <svg class="fill-current h-4 w-4 transform transition-transform duration-300 ease-[cubic-bezier(0.68,-0.55,0.27,1.55)]" :class="{ 'rotate-180 text-indigo-600': open }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div x-data="{ open: false }" class="relative">
+                    <select name="unit_kerja" @focus="open = true" @blur="open = false" class="w-full sm:w-auto pl-4 pr-10 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none">
+                        <option value="">Semua Unit</option>
+                        @foreach ($unitKerjas as $unit)
+                        <option value="{{ $unit->id }}" {{ request('unit_kerja') == $unit->id ? 'selected' : '' }}>{{ $unit->uk_short_name }}</option>
+                        @endforeach
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                        <svg class="fill-current h-4 w-4 transform transition-transform duration-300 ease-[cubic-bezier(0.68,-0.55,0.27,1.55)]" :class="{ 'rotate-180 text-indigo-600': open }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div x-data="{ open: false }" class="relative">
+                    <select name="year" @focus="open = true" @blur="open = false" class="w-full sm:w-auto pl-4 pr-10 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none">
+                        <option value="">Semua Tahun</option>
+                        @foreach ($years as $year)
+                        <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                        @endforeach
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                        <svg class="fill-current h-4 w-4 transform transition-transform duration-300 ease-[cubic-bezier(0.68,-0.55,0.27,1.55)]" :class="{ 'rotate-180 text-indigo-600': open }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div x-data="{ open: false }" class="relative">
+                    <select name="sort" @focus="open = true" @blur="open = false" class="w-full sm:w-auto pl-4 pr-10 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none">
+                        <option value="">Urutkan</option>
+                        <option value="title_asc" {{ request('sort') == 'title_asc' ? 'selected' : '' }}>Judul (A-Z)</option>
+                        <option value="title_desc" {{ request('sort') == 'title_desc' ? 'selected' : '' }}>Judul (Z-A)</option>
+                        <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Terbaru</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                        <svg class="fill-current h-4 w-4 transform transition-transform duration-300 ease-[cubic-bezier(0.68,-0.55,0.27,1.55)]" :class="{ 'rotate-180 text-indigo-600': open }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                        </svg>
+                    </div>
+                </div>
+
                 <div class="flex items-center gap-3 ml-auto">
                     <a href="{{ route('surveys.index') }}" class="text-sm font-semibold text-gray-600 hover:text-gray-800">Reset</a>
                     <button type="submit" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition shadow-sm flex items-center space-x-2">
@@ -113,7 +177,6 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium align-top">
                         <div class="flex items-center justify-center space-x-4">
-                            {{-- DITAMBAHKAN: Tombol Lihat Hasil Survei --}}
                             <a href="{{ route('surveys.results', $survey->id) }}" class="text-green-600 hover:text-green-800" title="Lihat Hasil">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                     <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />

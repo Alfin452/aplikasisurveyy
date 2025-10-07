@@ -5,23 +5,57 @@
 <div class="p-6 bg-white rounded-xl shadow-md"
     x-data="questionManager({{ $survey->questions->pluck('id') }})">
 
-    {{-- Header Survei dengan Desain Baru --}}
-    <div class="pb-4">
-        <div class="flex items-center justify-between">
-            <a href="{{ route('surveys.index') }}" class="text-gray-500 hover:text-gray-800 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-            </a>
-            <div class="flex items-center space-x-3">
+    {{-- DIUBAH: Header Halaman Premium dengan Breadcrumbs --}}
+    <div class="mb-8 bg-white rounded-xl p-4 md:p-6 border-l-4 border-purple-500 shadow">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-start">
+            <div>
+                <!-- Breadcrumbs -->
+                <nav class="text-sm mb-2 font-medium text-gray-500" aria-label="Breadcrumb">
+                    <ol class="list-none p-0 inline-flex">
+                        <li class="flex items-center">
+                            <a href="{{ route('superadmin.dashboard') }}" class="hover:text-purple-600">Dashboard</a>
+                            <svg class="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+                                <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569 9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
+                            </svg>
+                        </li>
+                        <li class="flex items-center">
+                            <a href="{{ route('surveys.index') }}" class="hover:text-purple-600">Manajemen Survei</a>
+                            <svg class="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+                                <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569 9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
+                            </svg>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-gray-700">Kelola Pertanyaan</span>
+                        </li>
+                    </ol>
+                </nav>
+                <div class="flex items-center gap-4 mt-2">
+                    <div class="flex-shrink-0 bg-purple-500 text-white p-3 rounded-lg shadow-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold text-gray-800">{{ $survey->title }}</h1>
+                        <p class="text-sm text-gray-500 mt-1">Atur, urutkan, dan kelola semua pertanyaan untuk survei ini.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 md:mt-0 flex flex-col md:flex-row items-stretch md:items-center gap-3 self-start md:self-end">
+                <a href="{{ route('surveys.index') }}" class="bg-white text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition flex items-center justify-center space-x-2 border border-gray-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span>Kembali</span>
+                </a>
                 <button x-show="isOrderChanged" x-transition @click="saveOrder('{{ route('surveys.questions.reorder', $survey) }}')"
-                    class="bg-green-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600 transition shadow-md flex items-center gap-2">
+                    class="bg-green-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600 transition shadow-md flex items-center justify-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     <span>Simpan Urutan</span>
                 </button>
-                <a href="{{ route('surveys.questions.create', $survey) }}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition shadow-md flex items-center gap-2">
+                <a href="{{ route('surveys.questions.create', $survey) }}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                     </svg>
@@ -29,53 +63,23 @@
                 </a>
             </div>
         </div>
-        <div class="mt-4">
-            <h1 class="text-3xl font-bold text-gray-800">{{ $survey->title }}</h1>
-            <p class="mt-1 text-gray-600">{{ $survey->description }}</p>
-            <div class="mt-3 flex items-center space-x-6 text-sm text-gray-500">
-                <div class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                    </svg>
-                    <span>{{ \Carbon\Carbon::parse($survey->start_date)->format('d M Y') }} - {{ \Carbon\Carbon::parse($survey->end_date)->format('d M Y') }}</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    @if($survey->is_active)
-                    <span class="h-3 w-3 rounded-full bg-green-500"></span>
-                    <span>Aktif</span>
-                    @else
-                    <span class="h-3 w-3 rounded-full bg-gray-400"></span>
-                    <span>Tidak Aktif</span>
-                    @endif
-                </div>
-            </div>
-        </div>
     </div>
 
-    {{-- Separator Visual Anti-Mainstream --}}
-    <div class="relative my-8">
-        <div class="absolute inset-0 flex items-center" aria-hidden="true">
-            <div class="w-full border-t border-gray-200"></div>
-        </div>
-        <div class="relative flex justify-center">
-            <span class="bg-white px-4 text-gray-300">
-                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
-                </svg>
-            </span>
-        </div>
+    {{-- Notifikasi --}}
+    <div x-cloak x-show="notification.show" x-transition class="mb-4">
+        <div class="p-4 rounded-lg text-sm font-semibold" :class="notification.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" x-text="notification.message"></div>
     </div>
 
     {{-- Manajemen Pertanyaan (Desain Akordeon) --}}
     <div>
-        <h2 class="text-2xl font-semibold text-gray-700 mb-4">Daftar Pertanyaan</h2>
-        <div x-cloak x-show="notification.show" x-transition x-text="notification.message"
-            :class="notification.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
-            class="p-3 rounded-lg mb-4 text-sm font-semibold"></div>
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-gray-800">Daftar Pertanyaan</h2>
+            <span class="text-sm text-gray-500 font-medium">Total: {{ $survey->questions->count() }} Pertanyaan</span>
+        </div>
 
         <div x-ref="sortableContainer" class="space-y-3">
             @forelse ($survey->questions as $question)
-            <div data-id="{{ $question->id }}" class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-lg hover:border-indigo-300 transition group">
+            <div data-id="{{ $question->id }}" class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-lg hover:border-indigo-300 transition-all duration-300 group">
                 {{-- Header Akordeon (Bisa di-klik dan di-drag) --}}
                 <div @click="openAccordion = (openAccordion === {{ $question->id }} ? null : {{ $question->id }})" class="flex items-center p-4 cursor-pointer">
                     <div class="cursor-grab text-gray-400 group-hover:text-gray-600 mr-3" @mousedown.stop>
@@ -84,7 +88,7 @@
                         </svg>
                     </div>
                     <div class="flex-grow">
-                        <p class="font-semibold text-gray-800">{{ $loop->iteration }}. {{ $question->question_body }}</p>
+                        <p class="font-semibold text-gray-800 group-hover:text-indigo-600 transition-colors">{{ $loop->iteration }}. {{ $question->question_body }}</p>
                     </div>
                     <span class="text-xs font-medium px-2 py-0.5 rounded-full ml-4 flex-shrink-0 {{ $question->type === 'multiple_choice' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800' }}">
                         {{ $question->type === 'multiple_choice' ? 'Pilihan Ganda' : 'Isian Teks' }}
@@ -101,30 +105,30 @@
                             </svg>
                         </button>
                     </div>
-                    <div class="ml-2 text-gray-400 transition-transform" :class="{'rotate-90': openAccordion === {{ $question->id }} }">
+                    <div class="ml-2 text-gray-400 transition-transform duration-300" :class="{'rotate-90': openAccordion === {{ $question->id }} }">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                         </svg>
                     </div>
                 </div>
                 {{-- Body Akordeon (muncul saat di-klik) --}}
-                <div x-show="openAccordion === {{ $question->id }}" x-transition class="px-4 pb-4 pl-12 pt-4">
+                <div x-show="openAccordion === {{ $question->id }}" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2" class="px-4 pb-4 pl-12 pt-2">
                     @if($question->type === 'multiple_choice' && $question->options->count() > 0)
-                    {{-- Separator dalam Akordeon --}}
-                    <div class="w-full h-px bg-gradient-to-r from-indigo-100 via-gray-200 to-transparent mb-4"></div>
-                    <ul class="space-y-2 text-sm text-gray-700">
-                        @foreach($question->options as $option)
-                        <li class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            <span>{{ $option->option_body }} (Skor: <span class="font-semibold text-indigo-700">{{ $option->option_score }}</span>)</span>
-                        </li>
-                        @endforeach
-                    </ul>
+                    <div class="border-t pt-4">
+                        <h4 class="font-semibold text-gray-600 text-sm mb-2">Opsi Jawaban:</h4>
+                        <ul class="space-y-2 text-sm text-gray-700">
+                            @foreach($question->options as $option)
+                            <li class="flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>{{ $option->option_body }} (Skor: <span class="font-semibold text-indigo-700">{{ $option->option_score }}</span>)</span>
+                            </li>
+                            @endforeach
+                        </ul>
+                    </div>
                     @elseif($question->type === 'multiple_choice')
-                    <div class="w-full h-px bg-gradient-to-r from-indigo-100 via-gray-200 to-transparent my-2"></div>
-                    <p class="text-sm text-gray-500 pt-2">Belum ada opsi jawaban untuk pertanyaan ini.</p>
+                    <p class="text-sm text-gray-500 pt-2 border-t">Belum ada opsi jawaban untuk pertanyaan ini.</p>
                     @endif
                 </div>
             </div>
@@ -157,7 +161,7 @@
 <script>
     function questionManager(initialOrder) {
         return {
-            openAccordion: null, // <-- DITAMBAHKAN: Untuk mengelola state akordeon
+            openAccordion: null,
             initialOrder: [...initialOrder],
             currentOrder: [...initialOrder],
             isOrderChanged: false,
@@ -170,7 +174,7 @@
                 const sortable = new Sortable(this.$refs.sortableContainer, {
                     ghostClass: 'sortable-ghost',
                     animation: 150,
-                    handle: '.cursor-grab', // <-- Tentukan handle drag
+                    handle: '.cursor-grab',
                     onUpdate: () => {
                         this.currentOrder = Array.from(sortable.el.children).map(el => el.dataset.id);
                         this.isOrderChanged = JSON.stringify(this.initialOrder) !== JSON.stringify(this.currentOrder);

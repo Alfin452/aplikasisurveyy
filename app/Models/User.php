@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder; // <-- DITAMBAHKAN
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Builder; // <-- DITAMBAHKAN
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -23,9 +23,12 @@ class User extends Authenticatable
         'password',
         'google_id',
         'role_id',
-        'unit_kerja_id', // <-- DITAMBAHKAN
-        'is_active',
-        'email_verified',
+        'unit_kerja_id',
+        'no_wa',
+        'jenis_kelamin',
+        'umur',
+        'asal_responden',
+        'jenis_responden',
     ];
 
     /**
@@ -35,60 +38,75 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
-        // 'remember_token',
+        'remember_token',
     ];
 
     /**
-     * The attributes that should be cast.
+     * Get the attributes that should be cast.
      *
-     * @var array<string, string>
+     * @return array<string, string>
      */
-    protected $casts = [
-        'email_verified' => 'boolean',
-        'is_active' => 'boolean',
-        'password' => 'hashed',
-    ];
-
-    // --- RELASI ANDA SUDAH SEMPURNA ---
-
-    public function role()
+    protected function casts(): array
     {
-        return $this->belongsTo(Role::class, 'role_id');
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
     }
 
-    public function unitKerja()
-    {
-        return $this->belongsTo(UnitKerja::class, 'unit_kerja_id');
-    }
-
-    public function answers()
-    {
-        return $this->hasMany(Answer::class);
-    }
+    // --- DITAMBAHKAN: LOCAL SCOPE UNTUK FILTER ---
 
     /**
-     * DITAMBAHKAN: Local Scope untuk menangani semua logika filter.
+     * Menerapkan filter ke kueri pengguna.
+     * Method ini akan dipanggil secara otomatis saat kita menggunakan ->filter() di controller.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  array  $filters
+     * @return void
      */
-    public function scopeFilter(Builder $query, array $filters): Builder
+    public function scopeFilter(Builder $query, array $filters)
     {
-        // Filter berdasarkan pencarian nama atau email
+        // Filter berdasarkan pencarian (search)
         $query->when($filters['search'] ?? false, function ($query, $search) {
-            return $query->where(function ($q) use ($search) {
-                $q->where('username', 'like', '%' . $search . '%')
+            $query->where(function ($query) use ($search) {
+                $query->where('username', 'like', '%' . $search . '%')
                     ->orWhere('email', 'like', '%' . $search . '%');
             });
         });
 
-        // Filter berdasarkan peran (role)
-        $query->when($filters['role'] ?? false, function ($query, $roleId) {
-            return $query->where('role_id', $roleId);
+        // Filter berdasarkan peran (role_id)
+        $query->when($filters['role'] ?? false, function ($query, $role) {
+            $query->where('role_id', $role);
         });
+    }
 
-        // Filter berdasarkan unit kerja
-        $query->when($filters['unit_kerja'] ?? false, function ($query, $unitKerjaId) {
-            return $query->where('unit_kerja_id', $unitKerjaId);
-        });
+    // --- AKHIR BAGIAN TAMBAHAN ---
 
-        return $query;
+
+    /**
+     * Accessor untuk mengecek apakah user adalah Superadmin.
+     */
+    public function getIsSuperadminAttribute()
+    {
+        return $this->role_id === 1;
+    }
+
+    /**
+     * Accessor untuk mengecek apakah user adalah Admin Unit Kerja.
+     */
+    public function getIsUnitkerjaAdminAttribute()
+    {
+        return $this->role_id === 2;
+    }
+
+    public function unitKerja()
+    {
+        return $this->belongsTo(UnitKerja::class);
+    }
+
+    // Relasi ke Role (jika Anda memiliki model Role)
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
     }
 }

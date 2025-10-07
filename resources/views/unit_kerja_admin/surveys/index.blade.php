@@ -1,7 +1,7 @@
 @extends('layouts.unit_kerja_admin')
 
 @section('content')
-<div class="p-6 bg-white rounded-xl shadow-md">
+<div class="p-6 bg-white rounded-xl shadow-md" x-data="{ openDeleteModal: false, deleteUrl: '', deleteItemName: '' }">
     <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800">Manajemen Survei</h1>
         <a href="{{ route('unitkerja.admin.surveys.create') }}" class="mt-4 md:mt-0 bg-teal-500 text-white px-5 py-2 rounded-lg font-medium hover:bg-teal-600 transition duration-300 shadow-md flex items-center space-x-2">
@@ -12,7 +12,7 @@
         </a>
     </div>
 
-    {{-- DITAMBAHKAN: Panel Filter Modern --}}
+    {{-- Panel Filter Modern --}}
     <div class="bg-white rounded-lg p-4 mb-6 border border-gray-200 shadow-sm">
         <form action="{{ route('unitkerja.admin.surveys.index') }}" method="GET">
             <div class="flex flex-wrap items-center gap-4">
@@ -95,6 +95,13 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium align-top">
                         <div class="flex items-center justify-center space-x-4">
+                            {{-- DITAMBAHKAN: Tombol untuk melihat hasil survei yang terfilter --}}
+                            <a href="{{ route('unitkerja.admin.surveys.results', $survey->id) }}" class="text-green-600 hover:text-green-800" title="Lihat Hasil">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
+                                    <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
+                                </svg>
+                            </a>
                             <a href="{{ route('unitkerja.admin.surveys.show', $survey->id) }}" class="text-purple-600 hover:text-purple-800" title="Kelola Pertanyaan">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                     <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />

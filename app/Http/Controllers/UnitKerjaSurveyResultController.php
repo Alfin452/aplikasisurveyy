@@ -16,28 +16,23 @@ class UnitKerjaSurveyResultController extends Controller
      */
     public function show(Survey $survey)
     {
-        // 1. Dapatkan unit kerja dari admin yang sedang login
-        $admin = Auth::user();
-        $unitKerjaId = $admin->unit_kerja_id;
+        // LOGIKA DIUBAH: Kita tidak lagi memfilter berdasarkan asal responden.
+        // Sebaliknya, kita akan menampilkan SEMUA jawaban untuk survei ini,
+        // karena hak akses ke survei ini sendiri sudah diatur di halaman sebelumnya.
 
-        // 2. Dapatkan daftar ID semua responden yang termasuk dalam unit kerja tersebut
-        $respondentIds = User::where('unit_kerja_id', $unitKerjaId)->pluck('id');
-
-        // 3. Eager load relasi yang dibutuhkan
+        // 1. Eager load relasi yang dibutuhkan
         $survey->load('questions.options');
 
-        // 4. Hitung jumlah responden unik, TAPI HANYA dari unit kerja ini
+        // 2. Hitung jumlah total responden unik untuk survei ini (tanpa filter unit kerja)
         $totalRespondents = Answer::where('survey_id', $survey->id)
-            ->whereIn('user_id', $respondentIds) // <-- KUNCI FILTER
             ->distinct('user_id')
             ->count('user_id');
 
-        // 5. Siapkan data untuk grafik
+        // 3. Siapkan data untuk grafik
         $chartData = [];
         foreach ($survey->questions as $question) {
-            // Ambil jumlah jawaban, TAPI HANYA dari unit kerja ini
+            // Ambil jumlah jawaban untuk setiap opsi (tanpa filter unit kerja)
             $answerCounts = Answer::where('question_id', $question->id)
-                ->whereIn('user_id', $respondentIds) // <-- KUNCI FILTER
                 ->select('option_id', DB::raw('count(*) as total'))
                 ->groupBy('option_id')
                 ->pluck('total', 'option_id');
@@ -56,7 +51,7 @@ class UnitKerjaSurveyResultController extends Controller
             ];
         }
 
-        // 6. Kirim semua data yang sudah terfilter ke view
+        // 4. Kirim semua data yang sudah terfilter ke view
         return view('unit_kerja_admin.surveys.results', compact('survey', 'totalRespondents', 'chartData'));
     }
 }
