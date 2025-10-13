@@ -92,11 +92,9 @@ class UserController extends Controller
     }
 
     /**
-     * DIUBAH: Menggunakan fasad Auth yang eksplisit.
      */
     public function destroy(User $user)
     {
-        // Tambahkan proteksi agar tidak bisa menghapus diri sendiri
         if ($user->id === Auth::id()) {
             return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }

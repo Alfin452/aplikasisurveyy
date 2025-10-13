@@ -15,6 +15,8 @@ use App\Http\Controllers\PublicSurveyController;
 use App\Http\Controllers\SurveyResponseController;
 use App\Http\Controllers\SurveyResultController;
 use App\Http\Controllers\UnitKerjaSurveyResultController;
+use App\Http\Controllers\UnitKerjaTemplateController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -61,8 +63,12 @@ Route::middleware(['auth', 'is.superadmin'])->group(function () {
     Route::get('/surveys/{survey}/results', [SurveyResultController::class, 'show'])->name('surveys.results');
 });
 
-Route::middleware(['auth', 'is.unitkerja.admin'])->prefix('unit-kerja-admin')->name('unitkerja.admin.')->group(function () {
+Route::middleware(['is.unitkerja.admin'])->prefix('unit-kerja-admin')->name('unitkerja.admin.')->group(function () {
     Route::get('/dashboard', [UnitKerjaAdminController::class, 'index'])->name('dashboard');
     Route::resource('surveys', UnitKerjaSurveyController::class);
     Route::get('/surveys/{survey}/results', [UnitKerjaSurveyResultController::class, 'show'])->name('surveys.results');
+    Route::get('templates', [UnitKerjaTemplateController::class, 'index'])->name('templates.index');
+    Route::post('templates/store', [UnitKerjaTemplateController::class, 'store'])->name('templates.store');
+    Route::get('surveys/templates/create-from/{template}', [UnitKerjaTemplateController::class, 'createFromTemplate'])->name('surveys.create_from_template');
+    Route::delete('templates/{template}', [UnitKerjaTemplateController::class, 'destroy'])->name('templates.destroy');
 });

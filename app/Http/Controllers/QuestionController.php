@@ -4,33 +4,31 @@ namespace App\Http\Controllers;
 
 use App\Models\Survey;
 use App\Models\Question;
+use App\Models\Option;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Support\Facades\Auth; // Diperlukan untuk memeriksa peran pengguna
 
 class QuestionController extends Controller
 {
     use AuthorizesRequests;
 
     /**
-     * Menampilkan form untuk membuat pertanyaan baru, disesuaikan berdasarkan peran.
      */
     public function create(Survey $survey)
     {
         $this->authorize('update', $survey);
 
-        // Cek peran untuk menampilkan view yang benar
-        if (Auth::user()->role_id === 1) { // Superadmin
+        // DIUBAH: Menggunakan accessor is_superadmin untuk kode yang lebih bersih
+        if (Auth::user()->is_superadmin) {
             return view('surveys.questions.create', compact('survey'));
         }
 
-        // Admin Unit Kerja
         return view('unit_kerja_admin.surveys.questions.create', compact('survey'));
     }
 
     /**
-     * Menyimpan pertanyaan baru dan mengarahkan kembali berdasarkan peran.
      */
     public function store(Request $request, Survey $survey)
     {
@@ -38,7 +36,7 @@ class QuestionController extends Controller
 
         $validated = $request->validate([
             'question_body' => 'required|string',
-            'type' => 'required|string|in:multiple_choice', // Hanya Pilihan Ganda
+            'type' => 'required|string|in:multiple_choice',
             'options' => 'required|array|min:2',
             'options.*.option_body' => 'required|string',
             'options.*.option_score' => 'required|integer',
@@ -57,11 +55,7 @@ class QuestionController extends Controller
 
             DB::commit();
 
-            // Tentukan rute redirect berdasarkan peran pengguna
-            $redirectRoute = Auth::user()->role_id === 1
-                ? 'surveys.show'
-                : 'unitkerja.admin.surveys.show';
-
+            $redirectRoute = Auth::user()->is_superadmin ? 'surveys.show' : 'unitkerja.admin.surveys.show';
             return redirect()->route($redirectRoute, $survey)->with('success', 'Pertanyaan berhasil disimpan.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -70,7 +64,6 @@ class QuestionController extends Controller
     }
 
     /**
-     * Menampilkan form untuk mengedit pertanyaan, disesuaikan berdasarkan peran.
      */
     public function edit(Survey $survey, Question $question)
     {
@@ -79,17 +72,14 @@ class QuestionController extends Controller
 
         $question->load('options');
 
-        // Cek peran untuk menampilkan view yang benar
-        if (Auth::user()->role_id === 1) { // Superadmin
+        if (Auth::user()->is_superadmin) {
             return view('surveys.questions.edit', compact('survey', 'question'));
         }
 
-        // Admin Unit Kerja
         return view('unit_kerja_admin.surveys.questions.edit', compact('survey', 'question'));
     }
 
     /**
-     * Memperbarui pertanyaan dan mengarahkan kembali berdasarkan peran.
      */
     public function update(Request $request, Survey $survey, Question $question)
     {
@@ -130,11 +120,7 @@ class QuestionController extends Controller
 
             DB::commit();
 
-            // Tentukan rute redirect berdasarkan peran pengguna
-            $redirectRoute = Auth::user()->role_id === 1
-                ? 'surveys.show'
-                : 'unitkerja.admin.surveys.show';
-
+            $redirectRoute = Auth::user()->is_superadmin ? 'surveys.show' : 'unitkerja.admin.surveys.show';
             return redirect()->route($redirectRoute, $survey)->with('success', 'Pertanyaan berhasil diperbarui.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -143,7 +129,6 @@ class QuestionController extends Controller
     }
 
     /**
-     * Menghapus pertanyaan dan mengarahkan kembali berdasarkan peran.
      */
     public function destroy(Survey $survey, Question $question)
     {
@@ -152,11 +137,7 @@ class QuestionController extends Controller
 
         $question->delete();
 
-        // Tentukan rute redirect berdasarkan peran pengguna
-        $redirectRoute = Auth::user()->role_id === 1
-            ? 'surveys.show'
-            : 'unitkerja.admin.surveys.show';
-
+        $redirectRoute = Auth::user()->is_superadmin ? 'surveys.show' : 'unitkerja.admin.surveys.show';
         return redirect()->route($redirectRoute, $survey)->with('success', 'Pertanyaan berhasil dihapus.');
     }
 }

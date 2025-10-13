@@ -18,8 +18,8 @@ class Answer extends Model
         'user_id',
         'survey_id',
         'question_id',
-        'option_id',    // <-- Pastikan ini ada
-        'answer_skor',  // <-- Dan ini juga ditambahkan
+        'option_id', // pastikan ini ada
+        'answer_skor', // dan ini juga ditambahkan
     ];
 
     /**
@@ -31,23 +31,27 @@ class Answer extends Model
         'answer_skor' => 'integer',
     ];
 
-    // Relasi: Satu jawaban dimiliki oleh satu user
+    /**
+     * Relasi: Satu jawaban dimiliki oleh satu user.
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Relasi: Satu jawaban milik satu survey
+    /**
+     * Relasi: Satu jawaban milik satu survey.
+     */
     public function survey()
     {
         return $this->belongsTo(Survey::class);
     }
 
-    // Relasi: Satu jawaban milik satu pertanyaan
+    /**
+     * Relasi: Satu jawaban milik satu pertanyaan.
+     */
     public function question()
     {
         return $this->belongsTo(Question::class);
     }
-
-    // Relasi option() dihapus karena tidak ada kolom option_id
 }

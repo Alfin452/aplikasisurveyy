@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Models\Survey; // <-- DITAMBAHKAN
-use App\Policies\SurveyPolicy; // <-- DITAMBAHKAN
+use App\Models\Survey; 
+use App\Policies\SurveyPolicy; 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 

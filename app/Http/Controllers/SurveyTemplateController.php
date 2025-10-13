@@ -10,7 +10,6 @@ class SurveyTemplateController extends Controller
 {
     public function index()
     {
-        // Memuat template beserta jumlah pertanyaannya
         $templates = Survey::where('is_template', true)->withCount('questions')->latest()->get();
         // Mengambil survei lengkap beserta jumlah pertanyaannya
         $surveysToCopy = Survey::where('is_template', false)->withCount('questions')->get();
@@ -60,32 +59,25 @@ class SurveyTemplateController extends Controller
     }
 
     /**
-     * Private method untuk logika duplikasi yang sudah disempurnakan.
      */
     private function duplicateSurvey(Survey $surveyToDuplicate, bool $asTemplate): Survey
     {
         $surveyToDuplicate->load('questions.options', 'unitKerja');
 
-        // DIUBAH: Kita tidak lagi mengecualikan tanggal. Kita akan menyalinnya
-        // sebagai placeholder dan hanya mengatur ulang status aktif.
         $newSurvey = $surveyToDuplicate->replicate();
 
         $newSurvey->is_template = $asTemplate;
 
         if ($asTemplate) {
             $newSurvey->title = $surveyToDuplicate->title . ' (Template)';
-            // Template yang baru dibuat seharusnya tidak aktif
             $newSurvey->is_active = false;
         } else {
             $newSurvey->title = str_replace(' (Template)', '', $surveyToDuplicate->title) . ' (Copy)';
-            // Survei baru dari template juga harus dimulai sebagai tidak aktif
-            // agar pengguna bisa mengaturnya di halaman edit.
             $newSurvey->is_active = false;
         }
 
         $newSurvey->save();
 
-        // Duplikasi pertanyaan dan opsi
         if ($surveyToDuplicate->questions->isNotEmpty()) {
             foreach ($surveyToDuplicate->questions as $question) {
                 $newQuestion = $question->replicate()->fill(['survey_id' => $newSurvey->id]);
@@ -100,7 +92,6 @@ class SurveyTemplateController extends Controller
             }
         }
 
-        // Duplikasi relasi many-to-many ke unitKerja
         $unitKerjaIds = $surveyToDuplicate->unitKerja->pluck('id');
         if ($unitKerjaIds->isNotEmpty()) {
             $newSurvey->unitKerja()->sync($unitKerjaIds);

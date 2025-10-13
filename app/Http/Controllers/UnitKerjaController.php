@@ -10,16 +10,13 @@ use App\Http\Requests\StoreUnitKerjaRequest;
 class UnitKerjaController extends Controller
 {
     /**
-     * Menampilkan daftar semua unit kerja dengan filter dan pengurutan.
      */
     public function index(Request $request)
     {
-        // Memulai query dengan eager loading dan menghitung sub-unit
         $query = UnitKerja::with(['tipeUnit', 'parent'])
             ->withCount('children') // <-- Kunci untuk tombol "Lihat Sub-Unit"
             ->filter($request->only('search', 'type', 'parent'));
 
-        // Menerapkan logika pengurutan berdasarkan input dari form filter
         if ($request->filled('sort')) {
             match ($request->sort) {
                 'name_asc'  => $query->orderBy('unit_kerja_name', 'asc'),
@@ -29,14 +26,11 @@ class UnitKerjaController extends Controller
                 default     => $query->orderBy('id', 'asc'),
             };
         } else {
-            // Pengurutan default jika tidak ada input
             $query->orderBy('id', 'asc');
         }
 
-        // Menjalankan query dengan pagination
         $unitKerja = $query->paginate(10)->withQueryString();
 
-        // Mengambil data untuk mengisi dropdown di panel filter
         $tipeUnits = TipeUnit::orderBy('nama_tipe_unit', 'asc')->get();
         $parentUnits = UnitKerja::orderBy('unit_kerja_name', 'asc')->get();
 
@@ -44,7 +38,6 @@ class UnitKerjaController extends Controller
     }
 
     /**
-     * Menampilkan formulir untuk membuat unit kerja baru.
      */
     public function create()
     {
@@ -55,7 +48,6 @@ class UnitKerjaController extends Controller
     }
 
     /**
-     * Menyimpan unit kerja baru ke database.
      */
     public function store(StoreUnitKerjaRequest $request)
     {
@@ -64,7 +56,6 @@ class UnitKerjaController extends Controller
     }
 
     /**
-     * Menampilkan formulir untuk mengedit unit kerja.
      */
     public function edit(UnitKerja $unitKerja)
     {
@@ -76,7 +67,6 @@ class UnitKerjaController extends Controller
     }
 
     /**
-     * Memperbarui data unit kerja di database.
      */
     public function update(StoreUnitKerjaRequest $request, UnitKerja $unitKerja)
     {
@@ -85,10 +75,14 @@ class UnitKerjaController extends Controller
     }
 
     /**
-     * Menghapus unit kerja dari database.
      */
     public function destroy(UnitKerja $unitKerja)
     {
+        if ($unitKerja->users()->exists() || $unitKerja->surveys()->exists()) {
+            return redirect()->route('unit-kerja.index')
+                ->with('error', 'Gagal! Unit kerja "' . $unitKerja->unit_kerja_name . '" tidak dapat dihapus karena masih memiliki pengguna atau survei terkait.');
+        }
+
         $unitKerja->delete();
         return redirect()->route('unit-kerja.index')->with('success', 'Unit kerja berhasil dihapus!');
     }

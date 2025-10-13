@@ -17,6 +17,8 @@ class Survey extends Model
         'end_date',
         'is_active',
         'is_template',
+        'requires_pre_survey',
+        'is_global_template',
     ];
 
     protected $casts = [
@@ -24,23 +26,40 @@ class Survey extends Model
         'end_date' => 'date',
         'is_active' => 'boolean',
         'is_template' => 'boolean',
+        'requires_pre_survey' => 'boolean',
+        'is_global_template' => 'boolean',
     ];
 
+    /**
+     * Relasi many-to-many dengan model UnitKerja.
+     * Satu survei dapat ditargetkan ke banyak unit kerja.
+     */
     public function unitKerja()
     {
         return $this->belongsToMany(UnitKerja::class, 'survey_unit_kerja');
     }
 
+    /**
+     * Relasi one-to-many ke model Question.
+     * Survei memiliki banyak pertanyaan.
+     */
     public function questions()
     {
         return $this->hasMany(Question::class)->orderBy('order_column', 'asc');
     }
 
+    /**
+     * Relasi one-to-many ke model Answer.
+     * Survei memiliki banyak jawaban.
+     */
     public function answers()
     {
         return $this->hasMany(Answer::class);
     }
 
+    /**
+     * Scope untuk memfilter survei berdasarkan kriteria tertentu.
+     */
     public function scopeFilter(Builder $query, array $filters): Builder
     {
         $query->when($filters['search'] ?? false, function ($query, $search) {
@@ -57,7 +76,6 @@ class Survey extends Model
             });
         });
 
-        // DIUBAH: Memfilter berdasarkan tahun dari 'start_date'
         $query->when($filters['year'] ?? false, function ($query, $year) {
             return $query->whereYear('start_date', $year);
         });

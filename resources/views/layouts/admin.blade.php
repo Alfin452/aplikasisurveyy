@@ -22,12 +22,10 @@
             display: none !important;
         }
 
-        /* Menerapkan Font Poppins ke seluruh sistem dengan !important */
         body {
             font-family: 'Poppins', sans-serif !important;
         }
 
-        /* Desain dan Animasi Loader "Pulsing Dots" */
         .pulsing-dots div {
             animation: pulse 1.4s infinite ease-in-out both;
             background-color: #3b82f6;
@@ -58,7 +56,6 @@
             }
         }
 
-        /* Style kustom untuk Tom Select */
         .ts-control {
             border-radius: 0.5rem !important;
             border-color: #d1d5db !important;
@@ -70,18 +67,18 @@
             box-shadow: 0 0 0 2px #c7d2fe !important;
         }
 
-        /* Style untuk item yang sedang di-drag */
         .sortable-ghost {
             background-color: #dbeafe;
-            /* Warna biru muda */
             opacity: 0.7;
             border: 2px dashed #60a5fa;
         }
     </style>
+    @stack('styles')
 </head>
 
 <body class="bg-gray-100 font-sans leading-normal tracking-normal"
-    x-data="{ openLogout: false, openDeleteModal: false, deleteUrl: '', deleteItemName: '' }">
+    x-data="{ openLogout: false, openDeleteModal: false, deleteUrl: '', deleteItemName: '' }"
+    @open-delete-modal.window="openDeleteModal = true; deleteUrl = event.detail.url; deleteItemName = event.detail.name">
 
     {{-- Elemen Loading Screen --}}
     <div x-cloak x-show="$store.globals.isLoading" x-transition.opacity
@@ -140,11 +137,9 @@
     <!-- Modal Konfirmasi Hapus -->
     <div x-cloak x-show="openDeleteModal" x-transition.opacity class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
         <div x-show="openDeleteModal" @click.away="openDeleteModal = false" x-transition.scale class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md text-center">
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-                <svg class="h-6 w-6 text-red-600" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100"><svg class="h-6 w-6 text-red-600" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-            </div>
+                </svg></div>
             <h2 class="text-2xl font-bold text-gray-800 mt-4">Konfirmasi Hapus</h2>
             <p class="text-gray-600 my-4">Apakah Anda yakin ingin menghapus <strong x-text="deleteItemName" class="font-semibold text-gray-900"></strong>?<br>Aksi ini tidak dapat dibatalkan.</p>
             <div class="flex justify-center gap-4 mt-6">
@@ -152,18 +147,16 @@
                 <form x-bind:action="deleteUrl" method="POST">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" @click="$store.globals.isLoading = true" class="px-6 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold shadow-md transition transform hover:scale-105">Ya, Hapus</button>
+                    <button type="submit" @click="$store.globals.isLoading = true" class="px-6 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold shadow-md transition">Ya, Hapus</button>
                 </form>
             </div>
         </div>
     </div>
 
-    {{-- JavaScript Libraries --}}
+    {{-- JavaScript Libraries & Skrip Global --}}
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-
-    {{-- Skrip Global --}}
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.store('globals', {
@@ -184,7 +177,6 @@
             });
         });
     </script>
-
     @stack('scripts')
 </body>
 

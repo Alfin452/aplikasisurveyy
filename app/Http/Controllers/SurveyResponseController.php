@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Survey;
 use App\Models\Answer;
 use App\Models\Option;
+use App\Models\PreSurveyResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -12,25 +13,41 @@ use Illuminate\Validation\ValidationException;
 class SurveyResponseController extends Controller
 {
     /**
-     * Menampilkan halaman untuk mengisi survei.
+     * Menampilkan form survei atau pra-survei sesuai kondisi.
      */
     public function showFillForm(Survey $survey)
     {
         $user = Auth::user();
-        $hasAnswered = Answer::where('user_id', $user->id)
+
+        // Cek apakah pengguna sudah pernah mengisi survei utama
+        $hasAnsweredMainSurvey = Answer::where('user_id', $user->id)
             ->whereIn('question_id', $survey->questions->pluck('id'))
             ->exists();
 
-        if ($hasAnswered) {
-            return redirect()->route('surveys.thankyou')->with('info', 'Anda sudah pernah mengisi survei ini sebelumnya.');
+        if ($hasAnsweredMainSurvey) {
+            return redirect()
+                ->route('surveys.thankyou')
+                ->with('info', 'Anda sudah pernah mengisi survei ini sebelumnya.');
         }
 
+        // Periksa apakah survei memerlukan pra-survei
+        if ($survey->requires_pre_survey) {
+            $hasFilledPreSurvey = PreSurveyResponse::where('user_id', $user->id)
+                ->where('survey_id', $survey->id)
+                ->exists();
+
+            if (!$hasFilledPreSurvey) {
+                return redirect()->route('surveys.pre-survey.create', $survey);
+            }
+        }
+
+        // Tampilkan survei utama
         $survey->load('questions.options');
         return view('public.surveys.fill', compact('survey'));
     }
 
     /**
-     * Menyimpan jawaban survei dari responden.
+     * Menyimpan jawaban survei utama.
      */
     public function storeResponse(Request $request, Survey $survey)
     {
@@ -44,7 +61,9 @@ class SurveyResponseController extends Controller
 
         $submittedQuestionIds = collect($request->answers)->keys();
         if ($questionIds->diff($submittedQuestionIds)->isNotEmpty()) {
-            throw ValidationException::withMessages(['answers' => 'Harap jawab semua pertanyaan yang tersedia.']);
+            throw ValidationException::withMessages([
+                'answers' => 'Harap jawab semua pertanyaan yang tersedia.',
+            ]);
         }
 
         $hasAnswered = Answer::where('user_id', $user->id)
@@ -52,20 +71,22 @@ class SurveyResponseController extends Controller
             ->exists();
 
         if ($hasAnswered) {
-            return redirect()->route('surveys.thankyou')->with('info', 'Anda sudah pernah mengisi survei ini sebelumnya.');
+            return redirect()
+                ->route('surveys.thankyou')
+                ->with('info', 'Anda sudah pernah mengisi survei ini sebelumnya.');
         }
 
-        // DIUBAH: Logika penyimpanan sekarang lebih aman
         foreach ($request->answers as $question_id => $option_id) {
             $option = Option::find($option_id);
 
-            // Simpan jawaban, gunakan skor dari opsi. Jika skornya null, gunakan 0 sebagai default.
+            if (!$option) continue; // Lewati jika opsi tidak valid
+
             Answer::create([
                 'user_id' => $user->id,
                 'survey_id' => $survey->id,
                 'question_id' => $question_id,
                 'option_id' => $option_id,
-                'answer_skor' => $option->skor ?? 0, // Ini adalah perbaikan kuncinya
+                'answer_skor' => $option->option_score ?? 0,
             ]);
         }
 
@@ -73,7 +94,7 @@ class SurveyResponseController extends Controller
     }
 
     /**
-     * Menampilkan halaman terima kasih setelah mengisi survei.
+     * Menampilkan halaman ucapan terima kasih.
      */
     public function thankYou()
     {
