@@ -12,6 +12,7 @@ class UnitKerja extends Model
 
     protected $fillable = [
         'unit_kerja_name',
+        'alias', // DITAMBAHKAN: Untuk URL yang ramah
         'uk_short_name',
         'tipe_unit_id',
         'parent_id',
@@ -22,19 +23,37 @@ class UnitKerja extends Model
     ];
 
     /**
+     * DITAMBAHKAN: Memberitahu Laravel untuk menggunakan 'alias' saat mencari model dari URL.
+     */
+    public function getRouteKeyName()
+    {
+        return 'alias';
+    }
+
+    /**
+     * DITAMBAHKAN: Relasi ke Program Survei.
+     * Sebuah Unit Kerja bisa ditargetkan oleh banyak Program Survei.
+     */
+    public function surveyPrograms()
+    {
+        return $this->belongsToMany(SurveyProgram::class, 'survey_program_unit_kerja');
+    }
+
+    /**
+     * DIUBAH: Relasi ke Survei Pelaksanaan.
+     * Sebuah Unit Kerja bisa memiliki banyak survei turunan/pelaksanaan.
+     */
+    public function surveys()
+    {
+        return $this->hasMany(Survey::class);
+    }
+
+    /**
      * Relasi: Unit Kerja memiliki banyak User.
      */
     public function users()
     {
         return $this->hasMany(User::class);
-    }
-
-    /**
-     * Relasi: Unit Kerja bisa ditargetkan oleh banyak Survey (many-to-many).
-     */
-    public function surveys()
-    {
-        return $this->belongsToMany(Survey::class, 'survey_unit_kerja');
     }
 
     /**

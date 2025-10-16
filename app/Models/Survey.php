@@ -19,6 +19,8 @@ class Survey extends Model
         'is_template',
         'requires_pre_survey',
         'is_global_template',
+        'survey_program_id', // DITAMBAHKAN: Untuk mengikat ke "Wadah"
+        'unit_kerja_id',     // DITAMBAHKAN: Untuk menandakan pemilik "Turunan"
     ];
 
     protected $casts = [
@@ -31,35 +33,33 @@ class Survey extends Model
     ];
 
     /**
-     * Relasi many-to-many dengan model UnitKerja.
-     * Satu survei dapat ditargetkan ke banyak unit kerja.
+     * DITAMBAHKAN: Relasi ke "Wadah" (SurveyProgram).
+     * Setiap survei pelaksanaan adalah bagian dari satu program.
      */
-    public function unitKerja()
+    public function surveyProgram()
     {
-        return $this->belongsToMany(UnitKerja::class, 'survey_unit_kerja');
+        return $this->belongsTo(SurveyProgram::class);
     }
 
     /**
-     * Relasi one-to-many ke model Question.
-     * Survei memiliki banyak pertanyaan.
+     * DIUBAH: Relasi ke UnitKerja sekarang menjadi belongsTo.
+     * Setiap survei pelaksanaan dimiliki oleh satu unit kerja.
      */
+    public function unitKerja()
+    {
+        return $this->belongsTo(UnitKerja::class);
+    }
+
     public function questions()
     {
         return $this->hasMany(Question::class)->orderBy('order_column', 'asc');
     }
 
-    /**
-     * Relasi one-to-many ke model Answer.
-     * Survei memiliki banyak jawaban.
-     */
     public function answers()
     {
         return $this->hasMany(Answer::class);
     }
 
-    /**
-     * Scope untuk memfilter survei berdasarkan kriteria tertentu.
-     */
     public function scopeFilter(Builder $query, array $filters): Builder
     {
         $query->when($filters['search'] ?? false, function ($query, $search) {
@@ -70,10 +70,9 @@ class Survey extends Model
             return $query->where('is_active', $filters['status']);
         });
 
+        // DIUBAH: Logika filter disederhanakan karena relasi menjadi langsung
         $query->when($filters['unit_kerja'] ?? false, function ($query, $unitKerjaId) {
-            return $query->whereHas('unitKerja', function ($q) use ($unitKerjaId) {
-                $q->where('unit_kerjas.id', $unitKerjaId);
-            });
+            return $query->where('unit_kerja_id', $unitKerjaId);
         });
 
         $query->when($filters['year'] ?? false, function ($query, $year) {

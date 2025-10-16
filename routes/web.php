@@ -16,6 +16,7 @@ use App\Http\Controllers\SurveyResponseController;
 use App\Http\Controllers\SurveyResultController;
 use App\Http\Controllers\UnitKerjaSurveyResultController;
 use App\Http\Controllers\UnitKerjaTemplateController;
+use App\Http\Controllers\SurveyProgramController;
 
 
 /*
@@ -24,24 +25,13 @@ use App\Http\Controllers\UnitKerjaTemplateController;
 |--------------------------------------------------------------------------
 */
 
-// --- RUTE PUBLIK & LANDING PAGE ---
 Route::get('/', [PublicSurveyController::class, 'index'])->name('home');
-
-// --- RUTE OTENTIKASI ---
-
-// DIKEMBALIKAN: Satu halaman login utama untuk semua
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 
-// Alur Login Google (untuk responden)
 Route::get('/auth/google/redirect', [LoginController::class, 'redirectToGoogle'])->name('google.redirect');
 Route::get('/auth/google/callback', [LoginController::class, 'handleGoogleCallback'])->name('google.callback');
-
-// Rute Logout (Berlaku untuk semua)
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-
-
-// --- SISA RUTE APLIKASI ANDA ---
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/surveys/{survey}/fill', [SurveyResponseController::class, 'showFillForm'])->name('surveys.fill');
@@ -53,6 +43,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth', 'is.superadmin'])->group(function () {
     Route::get('/superadmin/dashboard', [SuperadminDashboardController::class, 'index'])->name('superadmin.dashboard');
+    Route::resource('programs', SurveyProgramController::class);
     Route::resource('unit-kerja', UnitKerjaController::class);
     Route::resource('surveys', SurveyController::class);
     Route::resource('users', UserController::class);
